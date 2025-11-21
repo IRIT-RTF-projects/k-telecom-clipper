@@ -1,0 +1,231 @@
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.form {
+  background: white;
+  padding: 3rem;
+  border-radius: 16px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  border: 1px solid #e1e5e9;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.header h1 {
+  color: #333;
+  margin: 0 0 0.5rem 0;
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+/* Убрали подпись под заголовком */
+/* .header p { ... } */
+
+.error {
+  background-color: #fee;
+  color: #c33;
+  padding: 0.75rem;
+  border-radius: 6px;
+  margin-bottom: 1.5rem;
+  border: 1px solid #fcc;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.formGroup {
+  margin-bottom: 1.5rem;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #333;
+  font-size: 0.95rem;
+  /* двоеточие убрано в JSX */
+}
+
+input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid #e1e5e9;
+  border-radius: 6px;
+  font-size: 1rem;
+  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+input:disabled {
+  background-color: #f8f9fa;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.passwordInputContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.passwordInput {
+  padding-right: 3rem;
+}
+
+.eyeButton {
+  position: absolute;
+  right: 0.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+  color: #666;
+}
+
+.eyeButton:hover:not(:disabled) {
+  background-color: #f0f0f0;
+}
+
+.eyeButton:focus {
+  outline: none;
+  background-color: #e0e0e0;
+}
+
+.eyeButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Кнопка Войти: цвет согласно требованию #C8235A */
+.submitButton {
+  width: 100%;
+  padding: 0.875rem;
+  background: #C8235A;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.12s;
+  margin-bottom: 1rem;
+}
+
+.submitButton:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 5px 15px rgba(200, 35, 90, 0.18);
+}
+
+.submitButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Убрали demoButton стили — кнопка удалена из JSX */
+
+.skipSection {
+  text-align: center;
+  border-top: 1px solid #e1e5e9;
+  padding-top: 1.5rem;
+}
+
+.skipButton {
+  background: none;
+  border: 2px solid #28a745;
+  color: #28a745;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 0.5rem;
+}
+
+.skipButton:hover {
+  background-color: #28a745;
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+}
+
+.skipNote {
+  color: #666;
+  font-size: 0.8rem;
+  margin: 0;
+  font-style: italic;
+}
+
+@media (max-width: 480px) {
+  .form {
+    padding: 2rem 1.5rem;
+  }
+  
+  .header h1 {
+    font-size: 1.75rem;
+  }
+  
+  .skipButton {
+    width: 100%;
+    padding: 0.875rem;
+  }
+}
+
+/* Сохранена секция админ входа */
+.adminSection {
+  text-align: center;
+  border-top: 1px solid #e1e5e9;
+  padding-top: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.adminButton {
+  background: none;
+  border: 2px solid #ff6b35;
+  color: #ff6b35;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 0.5rem;
+}
+
+.adminButton:hover {
+  background-color: #ff6b35;
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 5px 15px rgba(255, 107, 53, 0.4);
+}
+
+.adminNote {
+  color: #666;
+  font-size: 0.8rem;
+  margin: 0;
+  font-style: italic;
+}

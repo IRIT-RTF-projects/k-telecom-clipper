@@ -1,0 +1,157 @@
+import { useState, useEffect } from 'react';
+import styles from './DomofonList.module.css';
+import type { Domofon } from '../../types/Domofon';
+import { useNavigate } from 'react-router-dom';
+
+// Моковые данные (15 штук)
+const mockDomofons: Domofon[] = [
+  { id: '1', address: 'г. Екатеринбург, ул. Гагарина, д. 23', entrance: 'под. 2', isOnline: true, lastActive: '' },
+  { id: '2', address: 'г. Екатеринбург, ул. Ленина, д. 10', entrance: 'под. 1', isOnline: true, lastActive: '' },
+  { id: '3', address: 'г. Екатеринбург, ул. Ленина, д. 10', entrance: 'под. 2', isOnline: false, lastActive: '' },
+  { id: '4', address: 'г. Екатеринбург, ул. Центральная, д. 5', entrance: 'под. 1', isOnline: true, lastActive: '' },
+  { id: '5', address: 'г. Екатеринбург, ул. Центральная, д. 5', entrance: 'под. 2', isOnline: false, lastActive: '' },
+  { id: '6', address: 'г. Екатеринбург, ул. Садовая, д. 15', entrance: 'под. 1', isOnline: true, lastActive: '' },
+  { id: '7', address: 'г. Екатеринбург, ул. Садовая, д. 15', entrance: 'под. 2', isOnline: true, lastActive: '' },
+  { id: '8', address: 'г. Екатеринбург, ул. Мира, д. 7', entrance: 'под. 1', isOnline: true, lastActive: '' },
+  { id: '9', address: 'г. Екатеринбург, ул. Мира, д. 7', entrance: 'под. 3', isOnline: false, lastActive: '' },
+  { id: '10', address: 'г. Екатеринбург, пр. Космонавтов, д. 12', entrance: 'под. 1', isOnline: true, lastActive: '' },
+  { id: '11', address: 'г. Екатеринбург, пр. Космонавтов, д. 12', entrance: 'под. 2', isOnline: true, lastActive: '' },
+  { id: '12', address: 'г. Екатеринбург, ул. Победы, д. 3', entrance: 'под. 1', isOnline: false, lastActive: '' },
+  { id: '13', address: 'г. Екатеринбург, ул. Победы, д. 3', entrance: 'под. 2', isOnline: true, lastActive: '' },
+  { id: '14', address: 'г. Екатеринбург, ул. Новая, д. 1', entrance: 'под. 1', isOnline: true, lastActive: '' },
+  { id: '15', address: 'г. Екатеринбург, ул. Новая, д. 1', entrance: 'под. 2', isOnline: false, lastActive: '' },
+];
+
+const ITEMS_PER_PAGE = 10;
+
+const DomofonList = () => {
+  const [domofons, setDomofons] = useState<Domofon[]>([]);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
+  const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // эмуляция загрузки
+    setIsLoading(true);
+    setTimeout(() => {
+      setDomofons(mockDomofons);
+      setTotalPages(Math.max(1, Math.ceil(mockDomofons.length / ITEMS_PER_PAGE)));
+      setIsLoading(false);
+    }, 300);
+  }, []);
+
+  // Подмассив для текущей страницы
+  const paginated = domofons.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+
+  const handleSelect = (d: Domofon) => {
+    navigate('/video', { state: { domofon: d } });
+  };
+
+  const handlePageChange = (page: number) => {
+    if (page < 1 || page > totalPages) return;
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const renderPagination = () => {
+    const pages: (number | 'ellipsis')[] = [];
+    const maxVisible = 5;
+    let start = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+    let end = Math.min(totalPages, start + maxVisible - 1);
+    if (end - start + 1 < maxVisible) {
+      start = Math.max(1, end - maxVisible + 1);
+    }
+
+    if (start > 1) {
+      pages.push(1);
+      if (start > 2) pages.push('ellipsis');
+    }
+
+    for (let i = start; i <= end; i++) pages.push(i);
+
+    if (end < totalPages) {
+      if (end < totalPages - 1) pages.push('ellipsis');
+      pages.push(totalPages);
+    }
+
+    return (
+      <div className={styles.pagination}>
+        <button
+          className={styles.navButton}
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          aria-label="Назад"
+        >
+          ‹ Назад
+        </button>
+
+        <div className={styles.pages}>
+          {pages.map((p, idx) =>
+            p === 'ellipsis' ? (
+              <span key={`e-${idx}`} className={styles.ellipsis}>…</span>
+            ) : (
+              <button
+                key={p}
+                className={`${styles.pageNumber} ${currentPage === p ? styles.activePage : ''}`}
+                onClick={() => handlePageChange(p)}
+                aria-current={currentPage === p ? 'page' : undefined}
+              >
+                {p}
+              </button>
+            )
+          )}
+        </div>
+
+        <button
+          className={styles.navButton}
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          aria-label="Дальше"
+        >
+          Дальше ›
+        </button>
+      </div>
+    );
+  };
+
+  if (isLoading) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.loading}>Загрузка...</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className={styles.container}>
+      <div className={styles.header}>
+        <h1>Видеопотоки с домофонов</h1>
+      </div>
+
+      <ul className={styles.list} role="list">
+        {paginated.map(d => (
+          <li
+            key={d.id}
+            className={styles.item}
+            onClick={() => handleSelect(d)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => { if (e.key === 'Enter') handleSelect(d); }}
+          >
+            <div className={styles.title}>{d.address}{d.entrance ? `, ${d.entrance}` : ''}</div>
+            <div className={styles.separator} />
+          </li>
+        ))}
+
+        {paginated.length === 0 && (
+          <li className={styles.empty}>Домофоны не найдены</li>
+        )}
+      </ul>
+
+      {totalPages > 1 && renderPagination()}
+    </div>
+  );
+};
+
+export default DomofonList;

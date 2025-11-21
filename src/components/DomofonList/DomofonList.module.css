@@ -1,0 +1,132 @@
+/* Обновлённые минималистичные стили для списка домофонов */
+
+.container {
+  width: 100%;
+  max-width: 900px;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #eaeef2;
+  padding: 1.5rem;
+  margin: 0 auto;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+}
+
+.header {
+  margin-bottom: 1rem;
+}
+
+.header h1 {
+  font-size: 1.4rem;
+  color: #111827;
+  margin: 0;
+  font-weight: 600;
+}
+
+/* Список домофонов */
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0 0.5rem; /* пространство слева/справа для списка */
+  display: block;
+}
+
+.item {
+  padding: 1.25rem 0; /* добавлено больше места между элементами */
+  cursor: pointer;
+  outline: none;
+  display: block;
+  min-height: 56px;
+}
+
+.item:focus {
+  background: #f8fafc;
+}
+
+/* Заголовок домофона — цвет согласно требованию, font-weight чуть тоньше bold */
+.title {
+  color: #C8235A; /* требуемый цвет */
+  font-weight: 500; /* medium — визуально немного жирнее обычного, но тоньше bold */
+  font-size: 1rem;
+  line-height: 1.25;
+}
+
+/* Разделительная линия под каждым элементом */
+.separator {
+  height: 1px;
+  background: #E2E8F0; /* требуемый цвет линии */
+  margin-top: 0.9rem;
+}
+
+/* Пустое состояние */
+.empty {
+  padding: 1.25rem;
+  color: #64748b;
+  text-align: center;
+}
+
+/* Пагинация */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+  flex-wrap: wrap;
+}
+
+/* Навигационные кнопки Назад/Дальше — без border всегда */
+.navButton {
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  border: none; /* убираем border полностью */
+  background: white;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+/* Когда кнопка неактивна (первой/последней странице) — цвет #E2E8F0 и курсор not-allowed */
+.navButton:disabled {
+  color: #94a3b8;
+  background: #E2E8F0; /* требуемый цвет */
+  cursor: not-allowed;
+}
+
+/* Контейнер для чисел страниц */
+.pages {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+/* Кнопки с номерами страниц */
+.pageNumber {
+  padding: 0.4rem 0.65rem;
+  min-width: 36px;
+  text-align: center;
+  border-radius: 6px;
+  background: white;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+/* Выбранная страница должна иметь border */
+.activePage {
+  border: 2px solid #C8235A; /* рамка для выбранной страницы */
+  padding: 0.35rem 0.6rem; /* скорректировать padding чтобы border не ломал размер */
+}
+
+/* Эллипсис */
+.ellipsis {
+  color: #64748b;
+  padding: 0.4rem 0.6rem;
+  user-select: none;
+}
+
+/* Небольшая адаптивность */
+@media (max-width: 480px) {
+  .container { padding: 0.9rem; }
+  .title { font-size: 0.95rem; }
+  .navButton { padding: 0.45rem 0.6rem; }
+  .pageNumber { min-width: 30px; padding: 0.35rem 0.5rem; }
+}

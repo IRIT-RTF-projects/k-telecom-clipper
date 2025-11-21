@@ -1,0 +1,14 @@
+.overlay { position: fixed; inset: 0; background: rgba(2,6,23,0.12); display:flex; align-items:center; justify-content:center; z-index:1600; padding:20px; }
+.card { width:100%; max-width:720px; background:#fff; border-radius:12px; padding:20px; box-shadow:0 12px 40px rgba(2,6,23,0.12); display:flex; flex-direction:column; }
+.header { display:flex; justify-content:space-between; align-items:center; }
+.title { margin:0; font-size:1.05rem; font-weight:700; color:#020617; }
+.closeX { background:none; border:none; font-size:1.1rem; cursor:pointer; color:#6b7280; }
+.address { margin-top:8px; color:#64748B; font-size:0.95rem; }
+.chipList { margin-top:16px; display:flex; flex-wrap:wrap; gap:10px; max-height:420px; overflow-y:auto; padding-right:6px; }
+.chip { padding:8px 14px; border-radius:9999px; background:#F1F5F9; color:#111827; font-size:0.95rem; font-weight:500; cursor:pointer; border:1px solid transparent; transition:all .15s; user-select:none; }
+.chip:hover { background:#E2E8F0; }
+.chipSelected { background:#E5ECF3; border-color:#CBD5E1; box-shadow:0 0 0 1px #CBD5E1 inset; }
+.footer { margin-top:20px; display:flex; justify-content:center; gap:12px; }
+.cancelBtn { background:#fff; border:1px solid #E6E9EE; color:#6b7280; padding:10px 16px; border-radius:8px; font-weight:600; cursor:pointer; }
+.applyBtn { background:#C8235A; color:#fff; padding:10px 16px; border-radius:8px; font-weight:600; border:none; cursor:pointer; }
+.chipList::-webkit-scrollbar { width:8px; } .chipList::-webkit-scrollbar-thumb { background:#E6EDF5; border-radius:6px; }

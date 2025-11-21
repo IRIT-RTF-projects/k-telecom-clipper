@@ -1,0 +1,128 @@
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.header { }
+
+.headerContent {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 12px;
+  border-bottom: 1px solid #e6eef6;
+  padding-bottom: 8px;
+}
+
+/* табы: убираем border-radius и делаем фокус/outline отключённым */
+.tab {
+  background: transparent;
+  border: none;
+  padding: 8px 14px;
+  cursor: pointer;
+  color: #64748B;
+  font-weight: 600;
+  border-bottom: 3px solid transparent;
+  border-radius: 0; /* убираем радиус */
+}
+
+.tab:hover { color: #111827; }
+
+/* отключаем чёрную обводку при фокусе */
+.tab:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+/* активная вкладка: белый фон, нижнее подчёркивание #C8235A */
+.activeTab {
+  color: #C8235A;
+  border-bottom-color: #C8235A;
+  background: #fff;
+}
+
+/* Controls row (лево/право) */
+.controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.controlsLeft { display:flex; gap:12px; align-items:center; }
+.controlsRight { display:flex; gap:12px; align-items:center; }
+
+/* Создать поток (включая + справа) */
+.createButton {
+  background: #C8235A; /* теперь красный */
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.createButton:hover { filter: brightness(0.95); }
+
+/* Создать пользователя + (слева, красный) */
+.createUserButton {
+  background: #C8235A;
+  color: #fff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* Редактировать и Удалить (справа), фон #F1F5F9 текст чёрный */
+.editUserButton,
+.deleteUserButton {
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  background: #F1F5F9;
+  color: #000;
+}
+
+/* disabled state для edit/delete */
+.editUserButton:disabled,
+.deleteUserButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Постраничный блок и стили страниц (оставляем как раньше) */
+.panelContent { margin-top: 12px; }
+
+.paginationContainer { margin-top: 12px; display:flex; justify-content:center; }
+.pagination { display:flex; gap:8px; align-items:center; }
+.navButton {
+  background: #E2E8F0;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.navButton:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.pages { display:flex; gap:6px; align-items:center; }
+.pageNumber { background: transparent; border: 1px solid transparent; padding:8px 10px; border-radius:6px; cursor:pointer; }
+.activePage { border: 1px solid #C8235A; }
+.pageNumber:hover { background: #f8fafc; }

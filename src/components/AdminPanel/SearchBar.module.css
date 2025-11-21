@@ -1,0 +1,8 @@
+.wrapper { display:flex; align-items:center; }
+.input {
+  padding:8px 12px;
+  border-radius:8px;
+  border:1px solid #E6E9EE;
+  min-width:200px;
+  background:#fff;
+}

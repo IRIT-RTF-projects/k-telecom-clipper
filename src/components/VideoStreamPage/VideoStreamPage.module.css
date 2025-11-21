@@ -1,0 +1,295 @@
+.container {
+  width: 100%;
+  max-width: 1200px;
+  height: auto;
+  max-height: 900px;
+  overflow-y: auto;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e1e5e9;
+  padding: 1.5rem 1.5rem 2rem 1.5rem;
+  margin: 0 auto;
+}
+
+.header {
+  margin-bottom: 1rem;
+  padding-left: 24px;
+}
+
+.headerContent {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 1rem;
+}
+
+.header h1 {
+  color: #020617;
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 600;
+}
+
+/* Инструкции: текст слева, иконки справа */
+.instructions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 0 24px;
+  margin-bottom: 1rem;
+}
+
+.instructionsText {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+/* SemiBold для основного текста */
+.instructionPrimary {
+  color: #020617;
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600; /* SemiBold */
+}
+
+/* второстепенный текст — цвет #64748B */
+.instructionSecondary {
+  color: #64748B;
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+/* Правый блок: иконки вместе */
+.instrButtons {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+/* Иконки-кнопки без border, с эффектом инвертирования при active/focus */
+.iconButton {
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 8px;
+  background: white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 6px;
+}
+
+/* disabled state for icon: light background & reduced opacity */
+.iconButton:disabled {
+  background: #E2E8F0;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Картинка внутри кнопки */
+.iconImage {
+  width: 20px;
+  height: 20px;
+  display: block;
+  filter: none;
+}
+
+/* При нажатии (active / focus) — фон черный, иконка инвертируется (стрелка белая) */
+.iconButton:active:not(:disabled),
+.iconButton:focus-visible:not(:disabled) {
+  background: #000;
+}
+
+.iconButton:active:not(:disabled) .iconImage,
+.iconButton:focus-visible:not(:disabled) .iconImage {
+  filter: invert(1) brightness(2);
+}
+
+/* hover only for enabled */
+.iconButton:not(:disabled):hover {
+  background: #f3f4f6;
+}
+
+/* Контейнер видеопотока */
+.videoContainer {
+  background: white;
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.videoPlaceholder {
+  position: relative;
+  width: 100%;
+  height: 520px;
+  background: #0f1724;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  cursor: crosshair;
+  overflow: hidden;
+}
+
+.videoPlaceholderContent {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: #fff;
+}
+
+.videoIcon {
+  font-size: 3.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.videoResolution {
+  color: #ddd;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}
+
+.drawingCanvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* Footer (кнопки Назад/Сохранить) */
+.footer {
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem 24px;
+  margin-top: 1rem;
+  gap: 1rem;
+}
+
+.footerButton {
+  padding: 0.75rem 1.4rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+/* Нижняя кнопка Назад (возврат в список) — белый фон, есть border, текст #C8235A */
+.backButton {
+  background: #fff;
+  color: #C8235A;
+  border: 1px solid #C8235A;
+}
+.backButton:hover { background: #fff; }
+
+/* Save button: bg #C8235A, text #F8FAFC; when disabled — lighter */
+.saveButton {
+  background-color: #C8235A;
+  color: #F8FAFC;
+  border: none;
+}
+.saveButton:disabled {
+  background-color: #F7D5DF;
+  color: #7a3b4a;
+  cursor: not-allowed;
+}
+
+/* Confirmation modal */
+.confirmOverlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.45);
+  z-index: 1200;
+  padding: 16px;
+}
+
+.confirmModal {
+  background: white;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 520px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.confirmHeader {
+  padding: 18px 20px;
+  border-bottom: 1px solid #e6e9ee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.confirmTitle {
+  margin: 0;
+  color: #020617; /* заголовок */
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.closeConfirm {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #64748B;
+}
+
+.confirmBody {
+  padding: 18px 20px 24px 20px;
+}
+
+.confirmText {
+  margin: 0 0 18px 0;
+  color: #64748B; /* текст внутри модалки */
+  line-height: 1.4;
+}
+
+/* actions: two buttons on same axis */
+.confirmActions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+/* Остаться: белый bg, border, text #C8235A */
+.stayButton {
+  background: #fff;
+  color: #C8235A;
+  border: 1px solid #C8235A;
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Выйти: bg #C8235A, text white, no border */
+.exitButton {
+  background: #C8235A;
+  color: #fff;
+  border: none;
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+  .videoPlaceholder { height: 320px; }
+  .instructions { padding: 0 12px; flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+  .instrButtons { flex-direction: row; align-items: center; }
+  .footer { flex-direction: column; align-items: stretch; gap: 0.75rem; padding: 1rem; }
+  .confirmActions { flex-direction: column-reverse; }
+  .confirmActions button { width: 100%; }
+}

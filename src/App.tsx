@@ -1,35 +1,69 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+// src/App.tsx
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import LoginForm from './components/LoginForm/LoginForm';
+import DomofonList from './components/DomofonList/DomofonList';
+import VideoStreamPage from './components/VideoStreamPage/VideoStreamPage';
+import AdminPanel from './components/AdminPanel'; // импорт из index.tsx в папке AdminPanel
+import './App.css';
+import logo from './assets/logo.png'; // убедись, что файл существует
+
+// ProtectedRoute
+const ProtectedRoute = ({ children, adminOnly = false }: { children: JSX.Element, adminOnly?: boolean }) => {
+  const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
+  const isAdmin = localStorage.getItem('isAdmin') === 'true';
+
+  if (!isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
+
+  if (adminOnly && !isAdmin) {
+    return <Navigate to="/domofons" replace />;
+  }
+
+  return children;
+};
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <Router>
+      <div className="app">
+        <div className="logo-container">
+          <img src={logo} alt="Логотип" className="logo" />
+        </div>
+
+        <div className="page-container">
+          <Routes>
+            <Route path="/" element={<LoginForm />} />
+            <Route
+              path="/domofons"
+              element={
+                <ProtectedRoute>
+                  <DomofonList />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/video"
+              element={
+                <ProtectedRoute>
+                  <VideoStreamPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute adminOnly={true}>
+                  <AdminPanel />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </div>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </Router>
+  );
 }
 
-export default App
+export default App;
