@@ -6,13 +6,13 @@ export interface Stream {
   userCount: number;
   isOnline: boolean;
   lastActive?: string;
-  assignedUsers?: string[]; // добавлено — список id пользователей, у которых доступ к потоку
+  assignedUsers?: string[];
 }
 
 export interface User {
   id: string;
   login: string;
-  password?: string; // Добавляем поле пароля
+  password?: string;
   email: string;
   registrationDate: string;
   lastLogin: string;

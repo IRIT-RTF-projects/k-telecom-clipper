@@ -7,63 +7,8 @@ import StreamModal from './StreamModal';
 import UserModal from './UserModal';
 import DeleteModal from './DeleteModal';
 import SearchBar from './SearchBar';
+import { mockStreams, mockUsers } from "../../mocks";
 
-// mock data (оставляем вашу существующую структуру mock'ов)
-const mockStreams: Stream[] = [
-  { id: 's1', rtspUrl: 'rtsp://camera1/stream', address: 'г. Екатеринбург, ул. Гагарина, д. 23', entrance: 'под. 2', userCount: 2, isOnline: true, lastActive: '', assignedUsers: ['u1','u2'] },
-  { id: 's2', rtspUrl: 'rtsp://camera2/stream', address: 'г. Екатеринбург, ул. Ленина, д. 10', entrance: 'под. 1', userCount: 0, isOnline: true, lastActive: '', assignedUsers: [] },
-  { id: 's3', rtspUrl: 'rtsp://camera3/stream', address: 'г. Екатеринбург, ул. Мира, д. 7', entrance: 'под. 3', userCount: 1, isOnline: false, lastActive: '', assignedUsers: ['u1'] },
-
-  // +20 дополнительных (s4..s23)
-  { id: 's4', rtspUrl: 'rtsp://camera4/stream', address: 'г. Казань, ул. Пушкина, д. 12', entrance: 'под. 1', userCount: 0, isOnline: true, lastActive: '', assignedUsers: [] },
-  { id: 's5', rtspUrl: 'rtsp://camera5/stream', address: 'г. Москва, ул. Тверская, д. 5', entrance: 'под. 2', userCount: 0, isOnline: true, lastActive: '', assignedUsers: [] },
-  { id: 's6', rtspUrl: 'rtsp://camera6/stream', address: 'г. Санкт-Петербург, Невский пр., д. 45', entrance: 'под. 1', userCount: 1, isOnline: true, lastActive: '', assignedUsers: ['u3'] },
-  { id: 's7', rtspUrl: 'rtsp://camera7/stream', address: 'г. Новосибирск, ул. Советская, д. 2', entrance: 'под. 1', userCount: 0, isOnline: false, lastActive: '', assignedUsers: [] },
-  { id: 's8', rtspUrl: 'rtsp://camera8/stream', address: 'г. Екатеринбург, ул. Гагарина, д. 25', entrance: 'под. 1', userCount: 3, isOnline: true, lastActive: '', assignedUsers: ['u4','u5','u6'] },
-  { id: 's9', rtspUrl: 'rtsp://camera9/stream', address: 'г. Краснодар, ул. Лесная, д. 9', entrance: 'под. 2', userCount: 0, isOnline: true, lastActive: '', assignedUsers: [] },
-  { id: 's10', rtspUrl: 'rtsp://camera10/stream', address: 'г. Ростов-на-Дону, ул. Садовая, д. 3', entrance: 'под. 1', userCount: 1, isOnline: true, lastActive: '', assignedUsers: ['u7'] },
-  { id: 's11', rtspUrl: 'rtsp://camera11/stream', address: 'г. Уфа, ул. Ленина, д. 8', entrance: 'под. 2', userCount: 0, isOnline: false, lastActive: '', assignedUsers: [] },
-  { id: 's12', rtspUrl: 'rtsp://camera12/stream', address: 'г. Воронеж, пр. Революции, д. 14', entrance: 'под. 1', userCount: 2, isOnline: true, lastActive: '', assignedUsers: ['u8','u9'] },
-  { id: 's13', rtspUrl: 'rtsp://camera13/stream', address: 'г. Самара, ул. Солнечная, д. 6', entrance: 'под. 3', userCount: 0, isOnline: true, lastActive: '', assignedUsers: [] },
-  { id: 's14', rtspUrl: 'rtsp://camera14/stream', address: 'г. Ярославль, ул. Лермонтова, д. 11', entrance: 'под. 1', userCount: 0, isOnline: false, lastActive: '', assignedUsers: [] },
-  { id: 's15', rtspUrl: 'rtsp://camera15/stream', address: 'г. Тюмень, ул. Мира, д. 18', entrance: 'под. 2', userCount: 1, isOnline: true, lastActive: '', assignedUsers: ['u10'] },
-  { id: 's16', rtspUrl: 'rtsp://camera16/stream', address: 'г. Омск, ул. Петрова, д. 7', entrance: 'под. 1', userCount: 0, isOnline: true, lastActive: '', assignedUsers: [] },
-  { id: 's17', rtspUrl: 'rtsp://camera17/stream', address: 'г. Челябинск, ул. Победы, д. 4', entrance: 'под. 2', userCount: 2, isOnline: true, lastActive: '', assignedUsers: ['u11','u12'] },
-  { id: 's18', rtspUrl: 'rtsp://camera18/stream', address: 'г. Пермь, ул. Комсомольская, д. 20', entrance: 'под. 1', userCount: 0, isOnline: false, lastActive: '', assignedUsers: [] },
-  { id: 's19', rtspUrl: 'rtsp://camera19/stream', address: 'г. Томск, ул. Кирова, д. 9', entrance: 'под. 3', userCount: 1, isOnline: true, lastActive: '', assignedUsers: ['u13'] },
-  { id: 's20', rtspUrl: 'rtsp://camera20/stream', address: 'г. Владивосток, ул. Океанская, д. 2', entrance: 'под. 1', userCount: 0, isOnline: true, lastActive: '', assignedUsers: [] },
-  { id: 's21', rtspUrl: 'rtsp://camera21/stream', address: 'г. Нижний Новгород, ул. Большая Покровская, д. 10', entrance: 'под. 1', userCount: 0, isOnline: true, lastActive: '', assignedUsers: [] },
-  { id: 's22', rtspUrl: 'rtsp://camera22/stream', address: 'г. Ижевск, ул. Горького, д. 5', entrance: 'под. 2', userCount: 0, isOnline: false, lastActive: '', assignedUsers: [] },
-  { id: 's23', rtspUrl: 'rtsp://camera23/stream', address: 'г. Иркутск, ул. Байкальская, д. 30', entrance: 'под. 1', userCount: 1, isOnline: true, lastActive: '', assignedUsers: ['u14'] },
-];
-
-const mockUsers: User[] = [
-  { id: 'u1', login: 'ivan', email: 'ivan@example.com', registrationDate: '2023-01-01', lastLogin: '2023-11-21', streamCount: 3, isActive: true, assignedStreams: ['s1','s3','s12'] },
-  { id: 'u2', login: 'olga', email: 'olga@example.com', registrationDate: '2023-02-12', lastLogin: '2023-11-20', streamCount: 1, isActive: true, assignedStreams: ['s1'] },
-  { id: 'u3', login: 'petr', email: 'petr@example.com', registrationDate: '2023-03-05', lastLogin: '2023-11-19', streamCount: 1, isActive: true, assignedStreams: ['s6'] },
-
-  // +20 дополнительных (u4..u23)
-  { id: 'u4', login: 'anna', email: 'anna@example.com', registrationDate: '2023-04-01', lastLogin: '2023-11-19', streamCount: 1, isActive: true, assignedStreams: ['s8'] },
-  { id: 'u5', login: 'oleg', email: 'oleg@example.com', registrationDate: '2023-05-02', lastLogin: '2023-11-18', streamCount: 1, isActive: true, assignedStreams: ['s8'] },
-  { id: 'u6', login: 'maria', email: 'maria@example.com', registrationDate: '2023-05-10', lastLogin: '2023-11-17', streamCount: 1, isActive: true, assignedStreams: ['s8'] },
-  { id: 'u7', login: 'sergey', email: 'sergey@example.com', registrationDate: '2023-06-03', lastLogin: '2023-11-16', streamCount: 1, isActive: true, assignedStreams: ['s10'] },
-  { id: 'u8', login: 'elena', email: 'elena@example.com', registrationDate: '2023-06-21', lastLogin: '2023-11-15', streamCount: 1, isActive: true, assignedStreams: ['s12'] },
-  { id: 'u9', login: 'nikita', email: 'nikita@example.com', registrationDate: '2023-07-01', lastLogin: '2023-11-14', streamCount: 1, isActive: true, assignedStreams: ['s12'] },
-  { id: 'u10', login: 'dmitry', email: 'dmitry@example.com', registrationDate: '2023-07-11', lastLogin: '2023-11-13', streamCount: 1, isActive: true, assignedStreams: ['s15'] },
-  { id: 'u11', login: 'sveta', email: 'sveta@example.com', registrationDate: '2023-07-21', lastLogin: '2023-11-12', streamCount: 1, isActive: true, assignedStreams: ['s17'] },
-  { id: 'u12', login: 'andrey', email: 'andrey@example.com', registrationDate: '2023-08-01', lastLogin: '2023-11-11', streamCount: 1, isActive: true, assignedStreams: ['s17'] },
-  { id: 'u13', login: 'irina', email: 'irina@example.com', registrationDate: '2023-08-14', lastLogin: '2023-11-10', streamCount: 1, isActive: true, assignedStreams: ['s19'] },
-  { id: 'u14', login: 'max', email: 'max@example.com', registrationDate: '2023-09-01', lastLogin: '2023-11-09', streamCount: 1, isActive: true, assignedStreams: ['s23'] },
-  { id: 'u15', login: 'katya', email: 'katya@example.com', registrationDate: '2023-09-11', lastLogin: '2023-11-08', streamCount: 0, isActive: true, assignedStreams: [] },
-  { id: 'u16', login: 'vlad', email: 'vlad@example.com', registrationDate: '2023-09-18', lastLogin: '2023-11-07', streamCount: 0, isActive: true, assignedStreams: [] },
-  { id: 'u17', login: 'yulia', email: 'yulia@example.com', registrationDate: '2023-10-02', lastLogin: '2023-11-06', streamCount: 0, isActive: true, assignedStreams: [] },
-  { id: 'u18', login: 'roman', email: 'roman@example.com', registrationDate: '2023-10-10', lastLogin: '2023-11-05', streamCount: 0, isActive: true, assignedStreams: [] },
-  { id: 'u19', login: 'lena', email: 'lena@example.com', registrationDate: '2023-10-21', lastLogin: '2023-11-04', streamCount: 0, isActive: true, assignedStreams: [] },
-  { id: 'u20', login: 'igor', email: 'igor@example.com', registrationDate: '2023-11-01', lastLogin: '2023-11-03', streamCount: 0, isActive: true, assignedStreams: [] },
-  { id: 'u21', login: 'zoya', email: 'zoya@example.com', registrationDate: '2023-11-11', lastLogin: '2023-11-02', streamCount: 0, isActive: true, assignedStreams: [] },
-  { id: 'u22', login: 'kostya', email: 'kostya@example.com', registrationDate: '2023-11-15', lastLogin: '2023-11-01', streamCount: 0, isActive: true, assignedStreams: [] },
-  { id: 'u23', login: 'nastya', email: 'nastya@example.com', registrationDate: '2023-11-18', lastLogin: '2023-10-31', streamCount: 0, isActive: true, assignedStreams: [] },
-];
 const ITEMS_PER_PAGE = 10;
 
 type DeleteTarget = {
@@ -123,10 +68,10 @@ const AdminPanel: React.FC = () => {
     return filteredStreams.slice(start, start + ITEMS_PER_PAGE);
   }, [filteredStreams, currentPage]);
 
-  // --- CRUD simplified for demo (синхронизация users/streams) ---
+
   const handleCreateStream = (data: NewStreamForm) => {
     const newStreamId = Date.now().toString();
-    const assigned = data.selectedUsers || [];
+    const assigned = data.selectedUsers ?? [];
     const newStream: Stream = {
       id: newStreamId,
       address: data.cameraAddress,
@@ -137,18 +82,89 @@ const AdminPanel: React.FC = () => {
       lastActive: '',
       assignedUsers: assigned
     };
+
     setStreams(prev => [newStream, ...prev]);
+    if (assigned.length > 0) {
+      setUsers(prevUsers =>
+        prevUsers.map(u =>
+          assigned.includes(u.id)
+            ? {
+                ...u,
+                assignedStreams: Array.from(new Set([...(u.assignedStreams ?? []), newStreamId])),
+                streamCount: (Array.from(new Set([...(u.assignedStreams ?? []), newStreamId]))).length
+              }
+            : u
+        )
+      );
+    }
     setStreamModalOpen(false);
   };
 
   const handleUpdateStream = (streamId: string, payload: Partial<Stream> & Partial<NewStreamForm>) => {
-    setStreams(prev => prev.map(s => s.id === streamId ? { ...s, ...payload } : s));
+    // Обновляем поток
+    setStreams(prev =>
+      prev.map(s => {
+        if (s.id !== streamId) return s;
+
+        // payload может содержать cameraAddress / selectedUsers / rtspUrl и т.д.
+        const updated: Stream = {
+          ...s,
+          address: (payload as any).cameraAddress ?? payload.address ?? s.address,
+          rtspUrl: payload.rtspUrl ?? s.rtspUrl,
+          entrance: payload.entrance ?? s.entrance,
+          lastActive: payload.lastActive ?? s.lastActive,
+          assignedUsers: (payload as any).selectedUsers ?? payload.assignedUsers ?? s.assignedUsers,
+        };
+        updated.userCount = (updated.assignedUsers ?? []).length;
+        return updated;
+      })
+    );
+
+    // Синхронизируем пользователей: если назначенные пользователи поменялись,
+    // нужно убрать/добавить ссылки в users[].assignedStreams и обновить streamCount.
+    const newAssigned = (payload as any).selectedUsers as string[] | undefined;
+    if (newAssigned) {
+      setUsers(prevUsers => {
+        // получаем предыдущий список assigned для этого потока
+        const prevAssigned = streams.find(s => s.id === streamId)?.assignedUsers ?? [];
+
+        const toAdd = newAssigned.filter(id => !prevAssigned.includes(id));
+        const toRemove = prevAssigned.filter(id => !newAssigned.includes(id));
+
+        return prevUsers.map(u => {
+          let assigned = u.assignedStreams ? [...u.assignedStreams] : [];
+
+          if (toAdd.includes(u.id)) {
+            assigned = Array.from(new Set([...assigned, streamId]));
+          }
+          if (toRemove.includes(u.id)) {
+            assigned = assigned.filter(sid => sid !== streamId);
+          }
+          return {
+            ...u,
+            assignedStreams: assigned,
+            streamCount: assigned.length
+          };
+        });
+      });
+    }
+
     setEditingStream(null);
     setStreamModalOpen(false);
   };
 
   const handleDeleteStreamConfirmed = (id: string) => {
+    // удаляем поток из списка
     setStreams(prev => prev.filter(s => s.id !== id));
+
+    // удаляем ссылку на поток у пользователей
+    setUsers(prevUsers =>
+      prevUsers.map(u => {
+        const assigned = (u.assignedStreams ?? []).filter(sid => sid !== id);
+        return { ...u, assignedStreams: assigned, streamCount: assigned.length };
+      })
+    );
+
     setDeleteTarget(null);
   };
 

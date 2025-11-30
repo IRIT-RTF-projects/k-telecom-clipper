@@ -1,14 +1,11 @@
-export interface Domofon {
-  id: string;
-  address: string;
-  entrance: string;
-  isOnline: boolean;
-  lastActive?: string;
-}
+// src/types/Domofon.ts
+import type { Stream } from "./Admin";
 
-export interface DomofonListResponse {
-  domofons: Domofon[];
-  totalCount: number;
-  currentPage: number;
-  totalPages: number;
-}
+/**
+ * Domofon — публичная (пользовательская) версия Stream.
+ * Убираем приватные/админские поля: rtspUrl, assignedUsers, userCount.
+ */
+export type Domofon = Omit<Stream, "rtspUrl" | "assignedUsers" | "userCount"> & {
+  // Можно расширить публичную модель дополнительными полями для UI,
+  // например: shortLabel?: string;
+};

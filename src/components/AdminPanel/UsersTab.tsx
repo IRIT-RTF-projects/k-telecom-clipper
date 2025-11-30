@@ -55,7 +55,9 @@ const UsersTab: React.FC<Props> = ({ users, streams, selectedUserId = null, onSe
     if (!selectedUser) return;
     const prevAssigned = selectedUser.assignedStreams ?? [];
     const isAssigned = prevAssigned.includes(streamId);
-    const newAssigned = isAssigned ? prevAssigned.filter(id => id !== streamId) : [...prevAssigned, streamId];
+    const newAssigned = isAssigned
+      ? prevAssigned.filter(id => id !== streamId)
+      : [...prevAssigned, streamId];
     onAssign(selectedUser.id, newAssigned);
   };
 
@@ -66,7 +68,6 @@ const UsersTab: React.FC<Props> = ({ users, streams, selectedUserId = null, onSe
   const goToPage = (page: number) => {
     if (page < 1 || page > totalPages) return;
     setCurrentPage(page);
-    // скроллим правую колонку наверх (если нужно)
     const el = document.querySelector(`.${styles.right}`);
     if (el) (el as HTMLElement).scrollTo({ top: 0, behavior: 'smooth' });
   };
