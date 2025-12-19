@@ -1,12 +1,12 @@
-export interface UserLogin {
-  login: string;
-  password: string;
-}
+export type UserRole = "user" | "admin" | "superadmin";
 
-export interface AuthResponse {
-  token: string;
-  user: {
-    id: string;
-    login: string;
-  };
+export interface User {
+  id: number;
+  email: string;
+  first_name: string;
+  last_name: string;
+  patronymic: string | null;
+  role: UserRole;
+  created_at: string;
+  updated_at: string;
 }

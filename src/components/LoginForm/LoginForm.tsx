@@ -1,18 +1,28 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './LoginForm.module.css';
-import type { UserLogin } from '../../types/User';
+import { authApi } from '../../api/auth.api';
 
 const LoginForm: React.FC = () => {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState<UserLogin>({ login: '', password: '' });
+
+  const [formData, setFormData] = useState({
+    login: '',
+    password: '',
+  });
+
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+
+    setFormData(prev => ({
+      ...prev,
+      [name]: value,
+    }));
+
     if (error) setError('');
   };
 
@@ -20,39 +30,54 @@ const LoginForm: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-    setError('');
 
     if (!formData.login.trim() || !formData.password.trim()) {
       setError('Заполните все поля');
-      setIsLoading(false);
       return;
     }
 
+    setIsLoading(true);
+    setError('');
+
     try {
-      await new Promise(resolve => setTimeout(resolve, 700));
-      localStorage.setItem('isAuthenticated', 'true');
-      localStorage.setItem('userLogin', formData.login);
+      await authApi.login({
+        email: formData.login,
+        password: formData.password,
+      });
+
       navigate('/domofons');
-    } catch (err) {
-      console.error(err);
-      setError('Ошибка соединения с сервером');
+    } catch (err: any) {
+      if (err?.response?.status === 401) {
+        setError('Неверный логин или пароль');
+      } else {
+        setError('Ошибка соединения с сервером');
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleAdminLogin = () => {
-    localStorage.setItem('isAuthenticated', 'true');
-    localStorage.setItem('userLogin', 'admin');
-    localStorage.setItem('isAdmin', 'true');
-    navigate('/admin');
+  const handleAdminLogin = async () => {
+    setIsLoading(true);
+    setError('');
+
+    try {
+      await authApi.login({
+        email: 'admin@test.ru',
+        password: 'admin',
+      });
+
+      navigate('/admin');
+    } catch {
+      setError('Не удалось войти как админ');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
+
   const handleSkipAuth = () => {
-    localStorage.setItem('isAuthenticated', 'true');
-    localStorage.setItem('userLogin', 'guest');
-    navigate('/domofons');
+    setError('Режим гостя отключён');
   };
 
   return (
@@ -110,8 +135,12 @@ const LoginForm: React.FC = () => {
         </button>
 
         <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
-          <button type="button" onClick={handleSkipAuth} disabled={isLoading}>Пропустить</button>
-          <button type="button" onClick={handleAdminLogin} disabled={isLoading}>Войти как админ</button>
+          <button type="button" onClick={handleSkipAuth} disabled={isLoading}>
+            Пропустить
+          </button>
+          <button type="button" onClick={handleAdminLogin} disabled={isLoading}>
+            Войти как админ
+          </button>
         </div>
       </form>
     </div>
