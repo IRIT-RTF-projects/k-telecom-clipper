@@ -13,9 +13,6 @@ export interface LoginResponse {
 }
 
 export const authApi = {
-  /**
-   * Логин
-   */
   async login(data: LoginRequest): Promise<LoginResponse> {
     const response = await api.post<LoginResponse>(
       "/api/v1/users/login",
@@ -30,17 +27,11 @@ export const authApi = {
     return response.data;
   },
 
-  /**
-   * Текущий пользователь
-   */
   async getMe(): Promise<User> {
     const response = await api.get<User>("/api/v1/users/me");
     return response.data;
   },
 
-  /**
-   * Logout (клиентский)
-   */
   logout(): void {
     localStorage.removeItem("access_token");
     localStorage.removeItem("refresh_token");

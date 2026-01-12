@@ -45,14 +45,12 @@ const LoginForm: React.FC = () => {
         password: formData.password,
       });
 
-      // состояние авторизации
       localStorage.setItem('isAuthenticated', 'true');
-      localStorage.setItem(
-        'isAdmin',
-        res.user.role === 'admin' ? 'true' : 'false'
-      );
+      // localStorage.setItem(
+      //   'isAdmin',
+      //   res.user.role === 'admin' ? 'true' : 'false'
+      // );
 
-      // редирект по роли
       if (res.user.role === 'admin') {
         navigate('/admin', { replace: true });
       } else {
@@ -67,34 +65,6 @@ const LoginForm: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleAdminLogin = async () => {
-    setIsLoading(true);
-    setError('');
-
-    try {
-      const res = await authApi.login({
-        email: 'admin@test.ru',
-        password: 'admin',
-      });
-
-      localStorage.setItem('isAuthenticated', 'true');
-      localStorage.setItem(
-        'isAdmin',
-        res.user.role === 'admin' ? 'true' : 'false'
-      );
-
-      navigate('/admin', { replace: true });
-    } catch {
-      setError('Не удалось войти как админ');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleSkipAuth = () => {
-    setError('Режим гостя отключён');
   };
 
   return (
@@ -152,12 +122,9 @@ const LoginForm: React.FC = () => {
         </button>
 
         <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
-          <button type="button" onClick={handleSkipAuth} disabled={isLoading}>
-            Пропустить
-          </button>
-          <button type="button" onClick={handleAdminLogin} disabled={isLoading}>
+          {/* <button type="button" onClick={handleAdminLogin} disabled={isLoading}>
             Войти как админ
-          </button>
+          </button> */}
         </div>
       </form>
     </div>

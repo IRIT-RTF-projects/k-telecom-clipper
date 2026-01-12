@@ -4,6 +4,8 @@ import styles from './VideoStreamPage.module.css';
 import type { Point, Polygon, Domofon } from '../../types/VideoStream';
 import undoIcon from '../../assets/undo.svg';
 import redoIcon from '../../assets/redo.svg';
+import { streamsApi } from '../../api/streams.api';
+import { selectionsApi } from '../../api/selections.api';
 
 const VideoStreamPage = () => {
   const navigate = useNavigate();
@@ -16,9 +18,33 @@ const VideoStreamPage = () => {
   const [polygons, setPolygons] = useState<Polygon[]>([]);
   const [currentPolygon, setCurrentPolygon] = useState<Point[]>([]);
   const [isSaved, setIsSaved] = useState(false);
+  const [streamUrl, setStreamUrl] = useState<string | null>(null);
 
   const [redoStack, setRedoStack] = useState<Point[]>([]);
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
+
+  // защита от прямого захода
+  useEffect(() => {
+    if (!selectedDomofon) {
+      navigate('/domofons', { replace: true });
+    }
+  }, [selectedDomofon, navigate]);
+
+  // загрузка стрима
+  useEffect(() => {
+    if (!selectedDomofon) return;
+
+    const loadStream = async () => {
+      try {
+        const res = await streamsApi.getById(selectedDomofon.id);
+        setStreamUrl(res.streamUrl);
+      } catch (e) {
+        console.error('Ошибка загрузки видеопотока', e);
+      }
+    };
+
+    loadStream();
+  }, [selectedDomofon]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -50,23 +76,6 @@ const VideoStreamPage = () => {
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // polygons.forEach(polygon => {
-    //   if (polygon.points.length < 3) return;
-    //   ctx.save();
-    //   ctx.strokeStyle = '#007bff';
-    //   ctx.lineWidth = 2;
-    //   ctx.fillStyle = 'rgba(0, 123, 255, 0.12)';
-    //   ctx.beginPath();
-    //   ctx.moveTo(polygon.points[0].x, polygon.points[0].y);
-    //   for (let i = 1; i < polygon.points.length; i++) {
-    //     ctx.lineTo(polygon.points[i].x, polygon.points[i].y);
-    //   }
-    //   ctx.closePath();
-    //   ctx.fill();
-    //   ctx.stroke();
-    //   ctx.restore();
-    // });
-
     if (currentPolygon.length > 0) {
       ctx.save();
       ctx.strokeStyle = '#ff6b6b';
@@ -92,7 +101,6 @@ const VideoStreamPage = () => {
       ctx.restore();
     }
   }, [polygons, currentPolygon]);
-
 
   const handleVideoClick = (event: React.MouseEvent<HTMLDivElement>) => {
     const canvas = canvasRef.current;
@@ -129,9 +137,16 @@ const VideoStreamPage = () => {
     });
   };
 
-  const saveClick = () => {
-    setConfirmModalOpen(true);
-    setIsSaved(true);
+  const saveClick = async () => {
+    if (!selectedDomofon || currentPolygon.length < 3) return;
+
+    try {
+      await selectionsApi.create(selectedDomofon.id, currentPolygon);
+      setConfirmModalOpen(true);
+      setIsSaved(true);
+    } catch (e) {
+      console.error('Ошибка сохранения области', e);
+    }
   };
 
   const confirmStay = () => {
@@ -139,10 +154,6 @@ const VideoStreamPage = () => {
   };
 
   const confirmExit = () => {
-    // setPolygons([]);
-    // setCurrentPolygon([]);
-    // setRedoStack([]);
-    // setConfirmModalOpen(false);
     navigate('/domofons');
   };
 
@@ -154,7 +165,7 @@ const VideoStreamPage = () => {
     <div className={styles.container}>
       <div className={styles.header}>
         <div className={styles.headerContent}>
-          <h1>{selectedDomofon.address}, {selectedDomofon.entrance}</h1>
+          <h1>{selectedDomofon?.address}, {selectedDomofon?.entrance}</h1>
         </div>
       </div>
 
@@ -165,24 +176,11 @@ const VideoStreamPage = () => {
         </div>
 
         <div className={styles.instrButtons}>
-          <button
-            className={styles.iconButton}
-            onClick={handleUndo}
-            disabled={!undoEnabled}
-            aria-label="Назад (undo)"
-            title="Удалить последнюю точку"
-          >
+          <button className={styles.iconButton} onClick={handleUndo} disabled={!undoEnabled}>
             <img src={undoIcon} alt="undo" className={styles.iconImage} />
           </button>
 
-          <button
-            className={styles.iconButton}
-            onClick={handleRedo}
-            disabled={!redoEnabled}
-            aria-label="Вперед (redo)"
-            title="Вернуть точку"
-            style={!redoEnabled ? { opacity: 0.35 } : undefined} /* засветлен, если нельзя */
-          >
+          <button className={styles.iconButton} onClick={handleRedo} disabled={!redoEnabled}>
             <img src={redoIcon} alt="redo" className={styles.iconImage} />
           </button>
         </div>
@@ -193,28 +191,24 @@ const VideoStreamPage = () => {
           ref={videoRef}
           className={styles.videoPlaceholder}
           onClick={handleVideoClick}
-          tabIndex={0}
-          role="region"
-          aria-label="Область видеопотока — клик для добавления точки"
         >
-          <div className={styles.videoPlaceholderContent}>
-            <div className={styles.videoIcon}>...</div>
-            <p className={styles.videoResolution}>1920×1080</p>
-          </div>
+          {streamUrl ? (
+            <iframe src={streamUrl} title="video" className={styles.videoIframe} />
+          ) : (
+            <div className={styles.videoPlaceholderContent}>
+              <div className={styles.videoIcon}>...</div>
+              <p className={styles.videoResolution}>1920×1080</p>
+            </div>
+          )}
 
           <canvas ref={canvasRef} className={styles.drawingCanvas} />
         </div>
       </div>
 
       <div className={styles.footer}>
-        <div style={{ display: 'flex', gap: '1rem' }}>
-          <button
-            onClick={confirmExit}
-            className={`${styles.footerButton} ${styles.backButton}`}
-          >
-            Назад
-          </button>
-        </div>
+        <button onClick={confirmExit} className={`${styles.footerButton} ${styles.backButton}`}>
+          Назад
+        </button>
 
         <button
           onClick={saveClick}
@@ -228,23 +222,13 @@ const VideoStreamPage = () => {
       {confirmModalOpen && (
         <div className={styles.confirmOverlay}>
           <div className={styles.confirmModal}>
-            <div className={styles.confirmHeader}>
-              <h2 className={styles.confirmTitle}>Подтвердите действие</h2>
-              <button className={styles.closeConfirm} onClick={() => setConfirmModalOpen(false)}>×</button>
-            </div>
-
-            <div className={styles.confirmBody}>
-              <p className={styles.confirmText}>Выделенная область будет удалена. Уверены, что хотите выйти?</p>
-
-              <div className={styles.confirmActions}>
-                <button className={styles.stayButton} onClick={confirmStay}>Остаться</button>
-                <button className={styles.exitButton} onClick={confirmExit}>Выйти</button>
-              </div>
-            </div>
+            <h2>Подтвердите действие</h2>
+            <p>Выделенная область будет сохранена</p>
+            <button onClick={confirmStay}>Остаться</button>
+            <button onClick={confirmExit}>Выйти</button>
           </div>
         </div>
       )}
-
     </div>
   );
 };
