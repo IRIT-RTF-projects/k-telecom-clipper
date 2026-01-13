@@ -12,13 +12,13 @@ export interface Stream {
 export interface User {
   id: string;
   login: string;
-  password?: string;
   email: string;
+  role: 'admin' | 'user';
   registrationDate: string;
   lastLogin: string;
   streamCount: number;
   isActive: boolean;
-  assignedStreams?: string[];
+  assignedStreams: string[];
 }
 
 export interface NewStreamForm {
@@ -42,4 +42,15 @@ export interface DeleteModalState {
 export interface UserManagementState {
   selectedUser: User | null;
   userStreamAssignments: { [userId: string]: string[] };
+}
+
+export interface BackendUser {
+  id: string;
+  email: string;
+  first_name: string;
+  last_name: string;
+  patronymic: string | null;
+  role: 'admin' | 'user';
+  created_at: string;
+  updated_at: string;
 }
