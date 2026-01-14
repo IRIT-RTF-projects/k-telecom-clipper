@@ -1,5 +1,8 @@
-import type { Stream } from "./Admin";
+import type { Stream } from './Admin';
 
-export type Domofon = Omit<Stream, "rtspUrl" | "assignedUsers" | "userCount"> & {
-  // Можно расширить публичную модель дополнительными полями для UI,
+export type Domofon = {
+  id: number;
+  title: string;
+  subtitle?: string;
+  stream: Stream;
 };

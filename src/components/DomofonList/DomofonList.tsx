@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import styles from './DomofonList.module.css';
 import type { Domofon } from '../../types/Domofon';
 import { useNavigate } from 'react-router-dom';
-import { streamsApi } from '../../api/streams.api';
+import { adminApi } from '../../api/admin.api';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -14,15 +14,23 @@ const DomofonList = () => {
 
   const navigate = useNavigate();
 
+  /* ---------- LOAD STREAMS ---------- */
   useEffect(() => {
     const load = async () => {
       setIsLoading(true);
 
       try {
-        const data = await streamsApi.getAll();
+        const streams = await adminApi.getStreams();
 
-        setDomofons(data);
-        setTotalPages(Math.max(1, Math.ceil(data.length / ITEMS_PER_PAGE)));
+        const mapped: Domofon[] = streams.map(stream => ({
+          id: stream.id,
+          title: stream.description || `Поток #${stream.id}`,
+          subtitle: stream.url,
+          stream,
+        }));
+
+        setDomofons(mapped);
+        setTotalPages(Math.max(1, Math.ceil(mapped.length / ITEMS_PER_PAGE)));
       } catch (e) {
         console.error('Ошибка загрузки домофонов', e);
         setDomofons([]);
@@ -35,6 +43,7 @@ const DomofonList = () => {
     load();
   }, []);
 
+  /* ---------- PAGINATION ---------- */
   const paginated = domofons.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
@@ -61,12 +70,17 @@ const DomofonList = () => {
       start = Math.max(1, end - maxVisible + 1);
     }
 
+    if (start > 1) {
+      pages.push(1);
+      if (start > 2) pages.push('ellipsis');
+    }
+
+    for (let i = start; i <= end; i++) pages.push(i);
+
     if (end < totalPages) {
       if (end < totalPages - 1) pages.push('ellipsis');
       pages.push(totalPages);
     }
-
-    for (let i = start; i <= end; i++) pages.push(i);
 
     return (
       <div className={styles.pagination}>
@@ -74,7 +88,6 @@ const DomofonList = () => {
           className={styles.navButton}
           onClick={() => handlePageChange(currentPage - 1)}
           disabled={currentPage === 1}
-          aria-label="Назад"
         >
           ‹ Назад
         </button>
@@ -90,7 +103,6 @@ const DomofonList = () => {
                   currentPage === p ? styles.activePage : ''
                 }`}
                 onClick={() => handlePageChange(p)}
-                aria-current={currentPage === p ? 'page' : undefined}
               >
                 {p}
               </button>
@@ -102,7 +114,6 @@ const DomofonList = () => {
           className={styles.navButton}
           onClick={() => handlePageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
-          aria-label="Дальше"
         >
           Дальше ›
         </button>
@@ -110,10 +121,11 @@ const DomofonList = () => {
     );
   };
 
+  /* ---------- RENDER ---------- */
   if (isLoading) {
     return (
       <div className={styles.container}>
-        <div className={styles.loading}>Загрузка.</div>
+        <div className={styles.loading}>Загрузка…</div>
       </div>
     );
   }
@@ -121,7 +133,7 @@ const DomofonList = () => {
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h1>Видеопотоки с домофонов</h1>
+        <h1>Видеопотоки</h1>
       </div>
 
       <ul className={styles.list} role="list">
@@ -132,17 +144,16 @@ const DomofonList = () => {
             onClick={() => handleSelect(d)}
             role="button"
             tabIndex={0}
-            onKeyDown={(e) => { if (e.key === 'Enter') handleSelect(d); }}
+            onKeyDown={e => e.key === 'Enter' && handleSelect(d)}
           >
-            <div className={styles.title}>
-              {d.address}{d.entrance ? `, ${d.entrance}` : ''}
-            </div>
+            <div className={styles.title}>{d.title}</div>
+            <div className={styles.subtitle}>{d.subtitle}</div>
             <div className={styles.separator} />
           </li>
         ))}
 
         {paginated.length === 0 && (
-          <li className={styles.empty}>Домофоны не найдены</li>
+          <li className={styles.empty}>Потоки не найдены</li>
         )}
       </ul>
 

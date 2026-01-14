@@ -4,12 +4,6 @@ export interface Point {
 }
 
 export interface Polygon {
+  id: string;
   points: Point[];
-  id: string;
-}
-
-export interface Domofon {
-  id: string;
-  address: string;
-  entrance: string;
 }

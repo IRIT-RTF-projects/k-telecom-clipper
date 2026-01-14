@@ -1,17 +1,20 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import styles from './VideoStreamPage.module.css';
-import type { Point, Domofon } from '../../types/VideoStream';
+import type { Point } from '../../types/VideoStream';
+import type { Domofon } from '../../types/Domofon';
 import undoIcon from '../../assets/undo.svg';
 import redoIcon from '../../assets/redo.svg';
 import { api } from '../../api/axios';
 
+/* ---------- TYPES ---------- */
 interface Backend {
   id: number;
   url: string;
   description: string;
 }
 
+/* ---------- COMPONENT ---------- */
 const VideoStreamPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -49,15 +52,13 @@ const VideoStreamPage = () => {
   /* ---------- CANVAS RESIZE ---------- */
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas || !videoRef.current) return;
 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
     const updateCanvasSize = () => {
-      if (!videoRef.current) return;
-
-      const rect = videoRef.current.getBoundingClientRect();
+      const rect = videoRef.current!.getBoundingClientRect();
       const dpr = window.devicePixelRatio || 1;
 
       canvas.width = Math.round(rect.width * dpr);
@@ -90,9 +91,7 @@ const VideoStreamPage = () => {
 
     ctx.beginPath();
     ctx.moveTo(polygon[0].x, polygon[0].y);
-    for (let i = 1; i < polygon.length; i++) {
-      ctx.lineTo(polygon[i].x, polygon[i].y);
-    }
+    polygon.slice(1).forEach(p => ctx.lineTo(p.x, p.y));
 
     if (polygon.length >= 3) {
       ctx.closePath();
@@ -154,7 +153,7 @@ const VideoStreamPage = () => {
     try {
       await api.post('/api/v1/selections', {
         backend_id: selectedBackendId,
-        stream_id: selectedDomofon.id,
+        stream_id: selectedDomofon.stream.id,
         points: polygon,
       });
 
@@ -182,9 +181,7 @@ const VideoStreamPage = () => {
     <div className={styles.container}>
       <div className={styles.header}>
         <div className={styles.headerContent}>
-          <h1>
-            {selectedDomofon?.address}, {selectedDomofon?.entrance}
-          </h1>
+          <h1>{selectedDomofon?.title ?? 'Видеопоток'}</h1>
         </div>
       </div>
 
@@ -197,11 +194,7 @@ const VideoStreamPage = () => {
         </div>
 
         <div className={styles.instrButtons}>
-          <button
-            className={styles.iconButton}
-            onClick={handleUndo}
-            disabled={!undoEnabled}
-          >
+          <button className={styles.iconButton} onClick={handleUndo} disabled={!undoEnabled}>
             <img src={undoIcon} alt="undo" className={styles.iconImage} />
           </button>
 
@@ -217,21 +210,15 @@ const VideoStreamPage = () => {
       </div>
 
       <div className={styles.videoContainer}>
-        <div
-          ref={videoRef}
-          className={styles.videoPlaceholder}
-          onClick={handleVideoClick}
-        >
+        <div ref={videoRef} className={styles.videoPlaceholder} onClick={handleVideoClick}>
           <div className={styles.videoPlaceholderContent}>
-            <div className={styles.videoIcon}>...</div>
-            <p className={styles.videoResolution}>1920×1080</p>
+            <div className={styles.videoIcon}>🎥</div>
+            <p className={styles.videoResolution}>{selectedDomofon?.subtitle}</p>
           </div>
-
           <canvas ref={canvasRef} className={styles.drawingCanvas} />
         </div>
       </div>
 
-      {/* ---------- FOOTER ---------- */}
       <div className={styles.footer}>
         <button
           onClick={() => setConfirmModalOpen(true)}
@@ -240,31 +227,15 @@ const VideoStreamPage = () => {
           Назад
         </button>
 
-        <div
-          style={{
-            display: 'flex',
-            gap: '0.75rem',
-            alignItems: 'center',
-            flexWrap: 'wrap',
-            justifyContent: 'flex-end',
-          }}
-        >
+        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
           <select
             value={selectedBackendId ?? ''}
             onChange={e => setSelectedBackendId(Number(e.target.value))}
-            style={{
-              height: '44px',
-              padding: '0 12px',
-              borderRadius: '6px',
-              border: '1px solid #e1e5e9',
-              fontSize: '0.95rem',
-              minWidth: '220px',
-            }}
+            className={styles.backendSelect}
           >
             <option value="" disabled>
               Выберите бекенд
             </option>
-
             {backends.map(b => (
               <option key={b.id} value={b.id}>
                 {b.description}
@@ -282,16 +253,12 @@ const VideoStreamPage = () => {
         </div>
       </div>
 
-      {/* ---------- CONFIRM MODAL ---------- */}
       {confirmModalOpen && (
         <div className={styles.confirmOverlay}>
           <div className={styles.confirmModal}>
             <div className={styles.confirmHeader}>
               <h2 className={styles.confirmTitle}>Подтвердите действие</h2>
-              <button
-                className={styles.closeConfirm}
-                onClick={() => setConfirmModalOpen(false)}
-              >
+              <button className={styles.closeConfirm} onClick={() => setConfirmModalOpen(false)}>
                 ×
               </button>
             </div>
@@ -302,10 +269,7 @@ const VideoStreamPage = () => {
               </p>
 
               <div className={styles.confirmActions}>
-                <button
-                  className={styles.stayButton}
-                  onClick={() => setConfirmModalOpen(false)}
-                >
+                <button className={styles.stayButton} onClick={() => setConfirmModalOpen(false)}>
                   Остаться
                 </button>
                 <button className={styles.exitButton} onClick={confirmExit}>
