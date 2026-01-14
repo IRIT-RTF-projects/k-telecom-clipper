@@ -147,7 +147,7 @@ const DomofonList = () => {
             onKeyDown={e => e.key === 'Enter' && handleSelect(d)}
           >
             <div className={styles.title}>{d.title}</div>
-            <div className={styles.subtitle}>{d.subtitle}</div>
+            {/* <div className={styles.subtitle}>{d.subtitle}</div> */}
             <div className={styles.separator} />
           </li>
         ))}
