@@ -82,53 +82,30 @@ const AdminPanel = () => {
   };
 
   /* ---------- STREAM CRUD ---------- */
-  // const handleCreateStream = async (payload: {
-  //   url: string;
-  //   description: string;
-  //   userIds: number[];
-  // }) => {
-  //   const stream = await adminApi.createStream({
-  //     url: payload.url,
-  //     description: payload.description,
-  //   });
+  const handleCreateStream = async (data: NewStreamForm) => {
+    const stream = await adminApi.createStream({
+      url: data.url,
+      description: data.description,
+    });
 
-  //   for (const userId of payload.userIds) {
-  //     await adminApi.createPermission({
-  //       user_id: userId,
-  //       stream_id: stream.id,
-  //       can_read: true,
-  //       can_update: true,
-  //     });
-  //   }
+    const users = Array.isArray(data.selectedUsers)
+      ? data.selectedUsers
+      : [];
 
-  //   setStreams((prev) => [stream, ...prev]);
-  //   setStreamModalOpen(false);
-  // };
+    if (users.length > 0) {
+      await Promise.all(
+        users.map((userId) =>
+          createPermission({
+            user_id: userId,
+            stream_id: stream.id,
+          })
+        )
+      );
+    }
 
-const handleCreateStream = async (data: NewStreamForm) => {
-  const stream = await adminApi.createStream({
-    url: data.url,
-    description: data.description,
-  });
-
-  const users = Array.isArray(data.selectedUsers)
-    ? data.selectedUsers
-    : [];
-
-  if (users.length > 0) {
-    await Promise.all(
-      users.map((userId) =>
-        createPermission({
-          user_id: userId,
-          stream_id: stream.id,
-        })
-      )
-    );
-  }
-
-  setStreams((prev) => [stream, ...prev]);
-  setStreamModalOpen(false);
-};
+    setStreams((prev) => [stream, ...prev]);
+    setStreamModalOpen(false);
+  };
 
 
 const handleUpdateStream = async (
