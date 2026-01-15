@@ -10,7 +10,6 @@ export interface Stream {
 
 
 /* ===================== USER (ADMIN UI) ===================== */
-
 export interface AdminUser {
   id: string;
 
@@ -27,12 +26,15 @@ export interface AdminUser {
   assignedStreams: string[];
 }
 
+export type StreamWithUsers = Stream & {
+  users: AdminUser[];
+};
 /* ===================== FORMS ===================== */
 
 export interface NewStreamForm {
   url: string;
   description: string;
-  selectedUsers: number[];
+  userIds: number[];
 }
 
 

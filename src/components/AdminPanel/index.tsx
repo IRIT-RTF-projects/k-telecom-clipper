@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import styles from "./AdminPanel.module.css";
 
-import type { Stream, AdminUser, NewStreamForm } from "../../types/Admin";
+import type { Stream, AdminUser, NewStreamForm, StreamWithUsers } from "../../types/Admin";
 import StreamsTab from "./StreamsTab";
 import UsersTab from "./UsersTab";
 import StreamModal from "./StreamModal";
@@ -16,6 +16,12 @@ type DeleteTarget = {
   type: "stream" | "user";
   id: number;
   label?: string;
+};
+
+const mapUsersByIds = (allUsers: AdminUser[], ids: number[]): AdminUser[] => {
+  return allUsers
+    .filter((u) => ids.includes(Number(u.id)))
+    .map((u) => ({ ...u }));
 };
 
 const AdminPanel = () => {
@@ -40,11 +46,29 @@ const AdminPanel = () => {
     const load = async () => {
       try {
         setLoading(true);
+
         const [streamsRes, usersRes] = await Promise.all([
           adminApi.getStreams(),
           adminApi.getUsers(),
         ]);
-        setStreams(streamsRes);
+
+        // ⬇️ ДОГРУЖАЕМ permissions
+        const streamsWithUsers: StreamWithUsers[] = await Promise.all(
+          streamsRes.map(async (stream) => {
+            const { data: permissions } = await getPermissionsForStream(stream.id);
+
+            const streamUsers = usersRes.filter((u) =>
+              permissions.some((p: any) => p.user_id === Number(u.id))
+            );
+
+            return {
+              ...stream,
+              users: streamUsers,
+            };
+          })
+        );
+
+        setStreams(streamsWithUsers);
         setUsers(usersRes);
       } catch (e) {
         console.error("ADMIN LOAD ERROR", e);
@@ -55,6 +79,7 @@ const AdminPanel = () => {
 
     load();
   }, []);
+
 
   /* ---------- FILTER ---------- */
   const filteredStreams = useMemo(() => {
@@ -82,58 +107,58 @@ const AdminPanel = () => {
   };
 
   /* ---------- STREAM CRUD ---------- */
-  const handleCreateStream = async (data: NewStreamForm) => {
-    const stream = await adminApi.createStream({
-      url: data.url,
-      description: data.description,
-    });
-
-    const users = Array.isArray(data.selectedUsers)
-      ? data.selectedUsers
-      : [];
-
-    if (users.length > 0) {
-      await Promise.all(
-        users.map((userId) =>
-          createPermission({
-            user_id: userId,
-            stream_id: stream.id,
-          })
-        )
-      );
-    }
-
-    setStreams((prev) => [stream, ...prev]);
-    setStreamModalOpen(false);
-  };
-
-
-const handleUpdateStream = async (
-  streamId: number,
-  data: { url: string; description: string; userIds: number[] }
-) => {
-  // 1. обновляем поток на сервере
-  const updatedStream = await adminApi.updateStream(streamId, {
+const handleCreateStream = async (data: NewStreamForm) => {
+  const stream = await adminApi.createStream({
     url: data.url,
     description: data.description,
   });
 
-  const nextUserIds = Array.isArray(data.userIds) ? data.userIds : [];
+  const userIds = Array.isArray(data.userIds) ? data.userIds : [];
 
-  // 2. получаем текущие permissions
+  if (userIds.length > 0) {
+    await Promise.all(
+      userIds.map((userId) =>
+        createPermission({
+          user_id: userId,
+          stream_id: stream.id,
+        })
+      )
+    );
+  }
+
+  const streamWithUsers: StreamWithUsers = {
+    ...stream,
+    users: mapUsersByIds(users, userIds),
+  };
+
+  setStreams((prev) => [streamWithUsers, ...prev]);
+  setStreamModalOpen(false);
+};
+
+
+
+
+
+const handleUpdateStream = async (
+  streamId: number,
+  data: NewStreamForm
+) => {
+  await adminApi.updateStream(streamId, {
+    url: data.url,
+    description: data.description,
+  });
+
   const { data: permissions } = await getPermissionsForStream(streamId);
 
-  // 3. удаляем старые permissions
-  if (Array.isArray(permissions) && permissions.length > 0) {
+  if (permissions.length > 0) {
     await Promise.all(
       permissions.map((p: any) => deletePermission(p.id))
     );
   }
 
-  // 4. создаём новые permissions
-  if (nextUserIds.length > 0) {
+  if (data.userIds.length > 0) {
     await Promise.all(
-      nextUserIds.map((userId) =>
+      data.userIds.map((userId) =>
         createPermission({
           user_id: userId,
           stream_id: streamId,
@@ -142,14 +167,26 @@ const handleUpdateStream = async (
     );
   }
 
-  // ✅ 5. ОБНОВЛЯЕМ STREAMS В STATE
+  const updatedUsers = mapUsersByIds(users, data.userIds);
+
   setStreams((prev) =>
-    prev.map((s) => (s.id === streamId ? updatedStream : s))
+    prev.map((s) =>
+      s.id === streamId
+        ? {
+            ...s,
+            url: data.url,
+            description: data.description,
+            users: updatedUsers, // ✅ новые объекты
+          }
+        : s
+    )
   );
 
   setStreamModalOpen(false);
   setEditingStream(null);
 };
+
+
 
 
 

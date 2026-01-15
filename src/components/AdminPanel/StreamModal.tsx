@@ -24,8 +24,12 @@ const StreamModal = ({ stream, users, onClose, onSubmit }: Props) => {
     if (stream) {
       setUrl(stream.url);
       setDescription(stream.description);
+
+      // 🔥 ВАЖНО
+      setSelectedUserIds(stream.users?.map((u) => Number(u.id)) ?? []);
     }
   }, [stream]);
+
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
