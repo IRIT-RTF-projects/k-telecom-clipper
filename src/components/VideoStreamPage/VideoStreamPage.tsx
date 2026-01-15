@@ -84,7 +84,6 @@ const VideoStreamPage = () => {
       const rect = videoEl.getBoundingClientRect();
       const dpr = window.devicePixelRatio || 1;
 
-      // Reset transform before resizing
       ctx.setTransform(1, 0, 0, 1, 0, 0);
 
       canvas.width = Math.max(1, Math.round(rect.width * dpr));
@@ -92,14 +91,11 @@ const VideoStreamPage = () => {
       canvas.style.width = `${rect.width}px`;
       canvas.style.height = `${rect.height}px`;
 
-      // scale to CSS pixels
       ctx.scale(dpr, dpr);
 
-      // redraw
       drawPolygon();
     };
 
-    // initial
     resizeCanvas();
 
     const ro = new ResizeObserver(() => resizeCanvas());
@@ -205,7 +201,7 @@ const VideoStreamPage = () => {
       stream_id: streamId,
       selection: polygon.map(p => ({ x: Math.round(p.x), y: Math.round(p.y) })),
       description: '',
-      pushed_to_backend: false, // заглушка
+      pushed_to_backend: false, 
     };
 
     try {
