@@ -1,14 +1,15 @@
-import React, { useEffect, useMemo, useState } from 'react';
+// src/components/AdminPanel/UsersTab.tsx
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './UsersTab.module.css';
-import type { Stream, User } from '../../types/Admin';
+import type { Stream, AdminUser } from '../../types/Admin';
 
 interface Props {
-  users: User[];
+  users: AdminUser[];
   streams: Stream[];
   selectedUserId?: string | null;
   onSelectUser?: (id: string) => void;
-  onEdit: (user: User) => void;
-  onDelete: (user: User) => void;
+  onEdit: (user: AdminUser) => void;
+  onDelete: (user: AdminUser) => void;
   onAssign: (userId: string, assigned: string[]) => void;
 }
 
@@ -16,23 +17,34 @@ const ITEMS_PER_PAGE = 10;
 
 const UsersTab: React.FC<Props> = ({ users, streams, selectedUserId = null, onSelectUser, onEdit, onDelete, onAssign }) => {
   const [localSelected, setLocalSelected] = useState<string | null>(selectedUserId ?? (users[0]?.id ?? null));
+  const initializedRef = useRef(false);
 
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
 
+  // Синхронизация: когда проп selectedUserId приходит — устанавливаем локально (один источник)
   useEffect(() => {
-    if (selectedUserId !== undefined && selectedUserId !== localSelected) {
+    if (selectedUserId !== undefined && selectedUserId !== null && selectedUserId !== localSelected) {
       setLocalSelected(selectedUserId);
     }
-  }, [selectedUserId, localSelected]);
+    // слушаем только selectedUserId — не localSelected, чтобы не создавать петлю
+  }, [selectedUserId]);
 
+  // Первый раз после загрузки users: если ничего не выбрано — выберем первого.
+  // Используем ref, чтобы выполнить этот блок только один раз при появлении users.
   useEffect(() => {
-    if (!localSelected && users.length > 0) {
-      setLocalSelected(users[0].id);
-      onSelectUser?.(users[0].id);
-    }
-  }, [users, localSelected, onSelectUser]);
+    if (!initializedRef.current && users.length > 0) {
+      initializedRef.current = true;
 
+      if (!localSelected) {
+        setLocalSelected(users[0].id);
+        onSelectUser?.(users[0].id);
+      }
+    }
+    // зависим от users и onSelectUser, но НЕ от localSelected (чтобы не зациклиться)
+  }, [users, onSelectUser]);
+
+  // pagination: пересчитываем totalPages при изменении streams
   useEffect(() => {
     const tp = Math.max(1, Math.ceil(streams.length / ITEMS_PER_PAGE));
     setTotalPages(tp);
@@ -165,32 +177,32 @@ const UsersTab: React.FC<Props> = ({ users, streams, selectedUserId = null, onSe
           <table className={styles.streamsTable}>
             <thead>
               <tr>
-                <th className={styles.rtspHeader}>RTSP-адрес потока</th>
-                <th className={styles.addressHeader}>Адрес камеры</th>
+                <th className={styles.rtspHeader}>URL потока</th>
+                <th className={styles.addressHeader}>Описание</th>
                 <th className={styles.accessHeader}>Доступ</th>
               </tr>
             </thead>
 
             <tbody>
               {displayedStreams.map(stream => {
-                const assignedToUser = selectedUser?.assignedStreams?.includes(stream.id) ?? false;
+                const assignedToUser = selectedUser?.assignedStreams?.includes(String(stream.id)) ?? false;
                 return (
                   <tr key={stream.id} className={styles.streamRow}>
                     <td className={styles.rtspCell}>
-                      <div className={styles.rtspUrl}>{stream.rtspUrl}</div>
+                      <div className={styles.rtspUrl}>{stream.url}</div>
                     </td>
 
                     <td className={styles.addressCell}>
-                      <div className={styles.cameraAddress}>{stream.address}{stream.entrance ? `, ${stream.entrance}` : ''}</div>
+                      <div className={styles.cameraAddress}>{stream.description}</div>
                     </td>
 
                     <td className={styles.accessCell}>
                       <input
                         type="checkbox"
                         checked={assignedToUser}
-                        onChange={() => handleToggleAccess(stream.id)}
+                        onChange={() => handleToggleAccess(String(stream.id))}
                         disabled={!selectedUser}
-                        aria-label={`Доступ к ${stream.address}`}
+                        aria-label={`Доступ к ${stream.description}`}
                       />
                     </td>
                   </tr>

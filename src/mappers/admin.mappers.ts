@@ -1,3 +1,4 @@
+// src/mappers/admin.mappers.ts
 import type { User } from '../types/User';
 import type { AdminUser, Stream } from '../types/Admin';
 
@@ -15,20 +16,21 @@ export const mapUserToAdminUser = (u: User): AdminUser => ({
 
   streamCount: 0,
   isActive: true,
+
+  // по умолчанию пустой список; он будет заполнен при загрузке потоков
   assignedStreams: [],
 });
 
 /* ===================== STREAM ===================== */
 
+/**
+ * Нормализуем входной Partial<Stream> в Stream,
+ * соблюдая реальные поля из types/Admin.Stream
+ */
 export const normalizeStream = (s: Partial<Stream>): Stream => ({
-  id: String(s.id ?? ''),
-  address: s.address ?? '',
-  entrance: s.entrance ?? '',
-  rtspUrl: s.rtspUrl ?? '',
-
-  userCount: s.userCount ?? 0,
-  isOnline: s.isOnline ?? false,
-  lastActive: s.lastActive,
-
-  assignedUsers: Array.isArray(s.assignedUsers) ? s.assignedUsers : [],
+  id: s.id ?? 0,
+  url: s.url ?? '',
+  description: s.description ?? '',
+  created_at: s.created_at ?? '',
+  updated_at: s.updated_at ?? '',
 });
