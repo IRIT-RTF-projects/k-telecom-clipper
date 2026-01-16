@@ -1,10 +1,11 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import styles from './VideoStreamPage.module.css';
-import type { Point } from '../../types/VideoStream';
+import type { Point, Selection } from '../../types/VideoStream';
 import undoIcon from '../../assets/undo.svg';
 import redoIcon from '../../assets/redo.svg';
 import { api } from '../../api/axios';
+import { selectionsApi } from '../../api/selections.api';
 
 interface Backend {
   id: number;
@@ -13,6 +14,8 @@ interface Backend {
 
 const LINE_WIDTH = 1.2;   // толщина линии в CSS-пикселях
 const POINT_RADIUS = 3.0; // радиус точки в CSS-пикселях
+const EXISTING_SELECTION_COLOR = '#3B82F6'; // синий для существующих выделений
+const NEW_SELECTION_COLOR = '#C8235A'; // розовый для нового выделения
 
 const VideoStreamPage = () => {
   const navigate = useNavigate();
@@ -34,6 +37,10 @@ const VideoStreamPage = () => {
 
   const [backends, setBackends] = useState<Backend[]>([]);
   const [selectedBackendId, setSelectedBackendId] = useState<number | null>(null);
+
+  const [existingSelections, setExistingSelections] = useState<Selection[]>([]);
+  const [loadingSelections, setLoadingSelections] = useState(true);
+  const [streamError, setStreamError] = useState(false);
 
   /* ---------- LOAD STREAM ---------- */
   useEffect(() => {
@@ -70,6 +77,27 @@ const VideoStreamPage = () => {
     };
     loadBackends();
   }, []);
+
+  /* ---------- LOAD EXISTING SELECTIONS ---------- */
+  useEffect(() => {
+    if (!streamId) {
+      setLoadingSelections(false);
+      return;
+    }
+
+    const loadSelections = async () => {
+      try {
+        const selections = await selectionsApi.getByStreamId(streamId);
+        setExistingSelections(selections);
+      } catch (e) {
+        console.error('Ошибка загрузки существующих выделений', e);
+      } finally {
+        setLoadingSelections(false);
+      }
+    };
+
+    loadSelections();
+  }, [streamId]);
 
   /* ---------- CANVAS SIZE / RESIZE OBSERVER ---------- */
   useEffect(() => {
@@ -109,8 +137,47 @@ const VideoStreamPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [videoRef.current, canvasRef.current]);
 
-  /* ---------- DRAW POLYGON FUNCTION ---------- */
-  const drawPolygon = () => {
+  /* ---------- DRAW SINGLE POLYGON HELPER ---------- */
+  const drawSinglePolygon = (
+    ctx: CanvasRenderingContext2D,
+    points: Point[],
+    strokeColor: string,
+    fillColor: string,
+    showPoints: boolean = true
+  ) => {
+    if (points.length === 0) return;
+
+    ctx.save();
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = strokeColor;
+    ctx.lineWidth = LINE_WIDTH;
+    ctx.fillStyle = fillColor;
+
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, points[0].y);
+    for (let i = 1; i < points.length; i++) ctx.lineTo(points[i].x, points[i].y);
+
+    if (points.length >= 3) {
+      ctx.closePath();
+      ctx.fill();
+    }
+    ctx.stroke();
+
+    if (showPoints) {
+      for (const p of points) {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, POINT_RADIUS, 0, Math.PI * 2);
+        ctx.fillStyle = strokeColor;
+        ctx.fill();
+      }
+    }
+
+    ctx.restore();
+  };
+
+  /* ---------- DRAW ALL POLYGONS FUNCTION ---------- */
+  const drawPolygon = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
@@ -122,39 +189,30 @@ const VideoStreamPage = () => {
 
     ctx.clearRect(0, 0, cssW, cssH);
 
-    if (polygon.length === 0) return;
-
-    ctx.save();
-    ctx.lineJoin = 'round';
-    ctx.lineCap = 'round';
-    ctx.strokeStyle = '#C8235A';
-    ctx.lineWidth = LINE_WIDTH;
-    ctx.fillStyle = 'rgba(200, 35, 90, 0.15)';
-
-    ctx.beginPath();
-    ctx.moveTo(polygon[0].x, polygon[0].y);
-    for (let i = 1; i < polygon.length; i++) ctx.lineTo(polygon[i].x, polygon[i].y);
-
-    if (polygon.length >= 3) {
-      ctx.closePath();
-      ctx.fill();
-    }
-    ctx.stroke();
-
-    for (const p of polygon) {
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, POINT_RADIUS, 0, Math.PI * 2);
-      ctx.fillStyle = '#C8235A';
-      ctx.fill();
+    // Рисуем существующие выделения (синие)
+    for (const sel of existingSelections) {
+      drawSinglePolygon(
+        ctx,
+        sel.selection,
+        EXISTING_SELECTION_COLOR,
+        'rgba(59, 130, 246, 0.15)',
+        false // не показываем точки для существующих выделений
+      );
     }
 
-    ctx.restore();
-  };
+    // Рисуем текущее выделение пользователя (розовое)
+    drawSinglePolygon(
+      ctx,
+      polygon,
+      NEW_SELECTION_COLOR,
+      'rgba(200, 35, 90, 0.15)',
+      true
+    );
+  }, [polygon, existingSelections]);
 
   useEffect(() => {
     drawPolygon();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [polygon]);
+  }, [drawPolygon]);
 
   /* ---------- HANDLERS ---------- */
   const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -213,6 +271,10 @@ const VideoStreamPage = () => {
 
       setPolygon([]);
       setRedoStack([]);
+
+      // Перезагружаем существующие выделения чтобы отобразить только что сохранённое
+      const selections = await selectionsApi.getByStreamId(streamId);
+      setExistingSelections(selections);
     } catch (err) {
       console.error('Ошибка при сохранении выделения', err);
       const msg = (err as any)?.response?.data?.message ?? 'Ошибка при сохранении на сервере';
@@ -231,8 +293,8 @@ const VideoStreamPage = () => {
   const redoEnabled = redoStack.length > 0;
   const saveEnabled = polygon.length >= 3 && selectedBackendId !== null;
 
-  if (loadingStream) {
-    return <div className={styles.container}>Загрузка стрима…</div>;
+  if (loadingStream || loadingSelections) {
+    return <div className={styles.container}>Загрузка…</div>;
   }
 
   return (
@@ -261,10 +323,17 @@ const VideoStreamPage = () => {
         <div
           ref={videoRef}
           className={styles.videoPlaceholder}
-          style={!streamUrl ? { backgroundColor: '#f1f5f9' } : undefined}
+          style={!streamUrl || streamError ? { backgroundColor: '#f1f5f9' } : undefined}
         >
-          {streamUrl ? (
-            <video src={streamUrl} autoPlay muted playsInline className={styles.video} />
+          {streamUrl && !streamError ? (
+            // Используем img для MJPEG/RTSP потоков - браузеры не поддерживают rtsp:// напрямую,
+            // но серверы часто отдают MJPEG поток по HTTP который img может отображать
+            <img
+              src={streamUrl}
+              alt="Видеопоток"
+              className={styles.video}
+              onError={() => setStreamError(true)}
+            />
           ) : (
             <div
               style={{
@@ -279,9 +348,19 @@ const VideoStreamPage = () => {
                 padding: '1rem',
               }}
             >
-              Ошибка загрузки видеопотока.
-              <br />
-              Обратитесь к администратору
+              {streamError ? (
+                <>
+                  Не удалось загрузить видеопоток.
+                  <br />
+                  Проверьте доступность камеры или обратитесь к администратору
+                </>
+              ) : (
+                <>
+                  Ошибка загрузки видеопотока.
+                  <br />
+                  Обратитесь к администратору
+                </>
+              )}
             </div>
           )}
 
